@@ -175,7 +175,7 @@ public class ClaimCommand implements CommandExecutor {
     }
 
     private String getMessage(String key) {
-        return ClaimPlayerData.getMessages(key);
+        return ClaimPlayerData.getMessage(key);
     }
 
     private void sendConfirmMessage(Player player, String command, Component component) {

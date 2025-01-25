@@ -1,13 +1,8 @@
 package de.janschuri.claimplayerdata;
 
-import de.tr7zw.nbtapi.*;
-import de.tr7zw.nbtapi.iface.ReadWriteNBT;
-import de.tr7zw.nbtapi.iface.ReadableNBT;
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.*;
 
 public final class ClaimPlayerData extends JavaPlugin {
@@ -23,6 +18,7 @@ public final class ClaimPlayerData extends JavaPlugin {
         saveDefaultConfig();
 
         getCommand("claimplayerdata").setExecutor(new ClaimCommand());
+        getServer().getPluginManager().registerEvents(new JoinListener(), this);
 
         //create dir for plugin
 
@@ -67,7 +63,7 @@ public final class ClaimPlayerData extends JavaPlugin {
         playerDataMap.remove(uuid);
     }
 
-    public static String getMessages(String key) {
+    public static String getMessage(String key) {
         return instance.getConfig().getString("messages."+key, "Message not found:" + key);
     }
 }

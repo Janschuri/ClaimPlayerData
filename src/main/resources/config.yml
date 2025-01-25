@@ -1,3 +1,4 @@
+notify_on_join: true
 messages:
   no_unclaimed_data: "You have no unclaimed player data."
   no_unclaimed_inventory: "You have no unclaimed inventory."
@@ -16,3 +17,4 @@ messages:
   no_console: "This command can only be executed by players."
   reload: "Config reloaded."
   no_permission: "You do not have permission to use this command."
+  unclaimed_data: "You have unclaimed player data. claim it with /claimplayerdata."

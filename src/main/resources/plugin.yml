@@ -7,6 +7,6 @@ commands:
   claimplayerdata:
     description: Claim inv from playerdata
     usage: /<command>
-    permission: claimplayerdata.use
+    permission: claimplayerdata.claim
 depend:
   - NBTAPI
