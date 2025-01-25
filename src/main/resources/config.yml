@@ -18,3 +18,4 @@ messages:
   reload: "Config reloaded."
   no_permission: "You do not have permission to use this command."
   unclaimed_data: "You have unclaimed player data. claim it with /claimplayerdata."
+  wrong_usage: "Usage: /claimplayerdata <inv|end|xp>"

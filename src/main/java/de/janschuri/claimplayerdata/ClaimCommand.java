@@ -127,7 +127,7 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(getMessage("claimed_xp"));
                     break;
                 default:
-                    player.sendMessage("Usage: /claimplayerdata <inv|end|xp>");
+                    player.sendMessage(getMessage("wrong_usage"));
             }
 
             return true;
