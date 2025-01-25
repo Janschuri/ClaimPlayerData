@@ -74,13 +74,21 @@ public class PlayerData {
     public void clearInventory() {
         inventoryItems.clear();
 
-        removeKey("Inventory");
+        if (isEmpty()) {
+            delete();
+        } else {
+            removeKey("Inventory");
+        }
     }
 
     public void clearEnderchest() {
         enderchestItems.clear();
 
-        removeKey("EnderItems");
+        if (isEmpty()) {
+            delete();
+        } else {
+            removeKey("EnderItems");
+        }
     }
 
     public void clearXp() {
