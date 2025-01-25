@@ -47,6 +47,11 @@ public class ClaimCommand implements CommandExecutor {
 
             switch (arg) {
                 case "inv":
+                    if (!player.hasPermission("claimplayerdata.claim.inv")) {
+                        player.sendMessage(getMessage("no_permission"));
+                        return true;
+                    }
+
                     List<ItemStack> inventoryItems = playerData.getInventoryItems();
 
                     if (inventoryItems.isEmpty()) {
@@ -67,6 +72,11 @@ public class ClaimCommand implements CommandExecutor {
                     player.sendMessage(getMessage("claimed_inventory"));
                     break;
                 case "end":
+                    if (!player.hasPermission("claimplayerdata.claim.end")) {
+                        player.sendMessage(getMessage("no_permission"));
+                        return true;
+                    }
+
                     List<ItemStack> enderchestItems = playerData.getEnderchestItems();
 
                     if (enderchestItems.isEmpty()) {
@@ -86,6 +96,11 @@ public class ClaimCommand implements CommandExecutor {
                     player.sendMessage(getMessage("claimed_enderchest"));
                     break;
                 case "xp":
+                    if (!player.hasPermission("claimplayerdata.claim.xp")) {
+                        player.sendMessage(getMessage("no_permission"));
+                        return true;
+                    }
+
                     if (playerData.getXp() == 0) {
                         player.sendMessage(getMessage("no_unclaimed_xp"));
                         return true;
