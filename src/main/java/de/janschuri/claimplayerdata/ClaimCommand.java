@@ -6,14 +6,17 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ClaimCommand implements CommandExecutor {
+public class ClaimCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
@@ -201,5 +204,36 @@ public class ClaimCommand implements CommandExecutor {
                 }
             }
         }
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
+        List<String> completions = new ArrayList<>();
+
+        if (commandSender instanceof Player) {
+            Player player = (Player) commandSender;
+
+            if (strings.length == 1) {
+                if (player.hasPermission("claimplayerdata.claim.inv")) {
+                    if ("inv".startsWith(strings[0])) {
+                        completions.add("inv");
+                    }
+                }
+
+                if (player.hasPermission("claimplayerdata.claim.end")) {
+                    if ("end".startsWith(strings[0])) {
+                        completions.add("end");
+                    }
+                }
+
+                if (player.hasPermission("claimplayerdata.claim.xp")) {
+                    if ("xp".startsWith(strings[0])) {
+                        completions.add("xp");
+                    }
+                }
+            }
+        }
+
+        return completions;
     }
 }
