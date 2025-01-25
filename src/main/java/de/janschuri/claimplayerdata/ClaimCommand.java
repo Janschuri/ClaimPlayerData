@@ -10,10 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.file.LinkOption;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class ClaimCommand implements CommandExecutor {
 
@@ -21,13 +19,6 @@ public class ClaimCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] strings) {
         if (commandSender instanceof Player) {
             Player player = (Player) commandSender;
-
-            PlayerData playerData = ClaimPlayerData.getPlayerData(player.getUniqueId());
-
-            if (playerData == null) {
-                player.sendMessage("You have no unclaimed player data.");
-                return true;
-            }
 
             String arg = "";
             if (strings.length > 0) {
@@ -40,14 +31,26 @@ public class ClaimCommand implements CommandExecutor {
                 confirm = strings[1].equalsIgnoreCase("confirm");
             }
 
-            Bukkit.getLogger().info("Command: " + arg);
+            if (arg.equalsIgnoreCase("reload") && player.hasPermission("claimplayerdata.reload")) {
+                    ClaimPlayerData.reload();
+                    player.sendMessage(getMessage("reload"));
+                    return true;
+            }
+
+            PlayerData playerData = ClaimPlayerData.getPlayerData(player.getUniqueId());
+
+            if (playerData == null) {
+                player.sendMessage(getMessage("no_unclaimed_data"));
+                return true;
+            }
+
 
             switch (arg) {
                 case "inv":
                     List<ItemStack> inventoryItems = playerData.getInventoryItems();
 
                     if (inventoryItems.isEmpty()) {
-                        player.sendMessage("You have no unclaimed inventory.");
+                        player.sendMessage(getMessage("no_unclaimed_inventory"));
                         return true;
                     }
 
@@ -61,13 +64,13 @@ public class ClaimCommand implements CommandExecutor {
                     dropItems(player, inventoryItems);
 
                     playerData.clearInventory();
-                    player.sendMessage("You have claimed your inventory.");
+                    player.sendMessage(getMessage("claimed_inventory"));
                     break;
                 case "end":
                     List<ItemStack> enderchestItems = playerData.getEnderchestItems();
 
                     if (enderchestItems.isEmpty()) {
-                        player.sendMessage("You have no unclaimed enderchest.");
+                        player.sendMessage(getMessage("no_unclaimed_enderchest"));
                         return true;
                     }
 
@@ -80,16 +83,20 @@ public class ClaimCommand implements CommandExecutor {
                     dropItems(player, enderchestItems);
 
                     playerData.clearEnderchest();
-                    player.sendMessage("You have claimed your enderchest.");
+                    player.sendMessage(getMessage("claimed_enderchest"));
                     break;
                 case "xp":
                     if (playerData.getXp() == 0) {
-                        player.sendMessage("You have no unclaimed xp.");
+                        player.sendMessage(getMessage("no_unclaimed_xp"));
                         return true;
                     }
 
                     if (!confirm) {
-                        sendConfirmMessage(player, "xp", Component.text("Do you want to claim your " + playerData.getXp() + " xp?"));
+                        sendConfirmMessage(player, "xp", Component.text(
+                                getMessage("claim_xp_confirm")
+                                        .replace("%xp%", String.valueOf(playerData.getXp()))
+                                )
+                        );
 
                         return true;
                     }
@@ -99,7 +106,7 @@ public class ClaimCommand implements CommandExecutor {
                     Bukkit.getLogger().info(player.getName() + " got " + playerData.getXp() + " xp");
 
                     playerData.clearXp();
-                    player.sendMessage("You have claimed your xp.");
+                    player.sendMessage(getMessage("claimed_xp"));
                     break;
                 default:
                     player.sendMessage("Usage: /claimplayerdata <inv|end|xp>");
@@ -107,7 +114,7 @@ public class ClaimCommand implements CommandExecutor {
 
             return true;
         } else {
-            commandSender.sendMessage("You must be a player to use this command.");
+            commandSender.sendMessage(getMessage("no_console"));
             return true;
         }
     }
@@ -117,16 +124,14 @@ public class ClaimCommand implements CommandExecutor {
 
         switch (command) {
             case "inv":
-                message = "You need to have enough space in your inventory to claim your old inventory.";
+                message = getMessage("claim_inventory_confirm");
                 break;
             case "end":
-                message = "You need to have enough space in your inventory to claim your old enderchest.";
+                message = getMessage("claim_enderchest_confirm");
                 break;
-            default:
-                message = "You need to have enough space in your inventory to claim your old items.";
         }
 
-        Component itemsMessage = Component.text("Items: ")
+        Component itemsMessage = Component.text(getMessage("items_list"))
                 .append(Component.newline());
 
         for (ItemStack item : items) {
@@ -146,7 +151,7 @@ public class ClaimCommand implements CommandExecutor {
                         )
                 )
                 .append(Component.newline())
-                .append(Component.text("Overflowing items will be dropped.")
+                .append(Component.text(getMessage("overflow_info"))
                         .color(net.kyori.adventure.text.format.NamedTextColor.RED)
                     )
                 );
@@ -154,10 +159,14 @@ public class ClaimCommand implements CommandExecutor {
         sendConfirmMessage(player, command, confirmMessage);
     }
 
+    private String getMessage(String key) {
+        return ClaimPlayerData.getMessages(key);
+    }
+
     private void sendConfirmMessage(Player player, String command, Component component) {
 
         Component confirmMessage = component
-                .append(Component.text(" [Confirm]").color(net.kyori.adventure.text.format.NamedTextColor.GREEN)
+                .append(Component.text(" " + getMessage("confirm_button")).color(net.kyori.adventure.text.format.NamedTextColor.GREEN)
                         .clickEvent(net.kyori.adventure.text.event.ClickEvent.runCommand("/claimplayerdata " + command + " confirm"))
                 );
 

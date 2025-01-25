@@ -20,6 +20,7 @@ public final class ClaimPlayerData extends JavaPlugin {
     public void onEnable() {
         // register command
         instance = this;
+        saveDefaultConfig();
 
         getCommand("claimplayerdata").setExecutor(new ClaimCommand());
 
@@ -53,11 +54,20 @@ public final class ClaimPlayerData extends JavaPlugin {
         }
     }
 
+    public static void reload() {
+        getInstance().saveDefaultConfig();
+        getInstance().reloadConfig();
+    }
+
     public static void addPlayerData(UUID uuid, PlayerData playerData) {
         playerDataMap.put(uuid, playerData);
     }
 
     public static void removePlayerData(UUID uuid) {
         playerDataMap.remove(uuid);
+    }
+
+    public static String getMessages(String key) {
+        return instance.getConfig().getString("messages."+key, "Message not found:" + key);
     }
 }
