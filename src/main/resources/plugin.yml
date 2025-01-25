@@ -1,0 +1,12 @@
+name: ClaimPlayerData
+version: '1.0-SNAPSHOT'
+main: de.janschuri.claimplayerdata.ClaimPlayerData
+api-version: '1.19'
+authors: [ Janschuri ]
+commands:
+  claimplayerdata:
+    description: Claim inv from playerdata
+    usage: /<command>
+    permission: claimplayerdata.use
+depend:
+  - NBTAPI
