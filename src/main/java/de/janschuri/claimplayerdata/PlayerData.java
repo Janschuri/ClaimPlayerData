@@ -127,8 +127,6 @@ public class PlayerData {
 
         playerDataFile.delete();
         playerDataFileOld.delete();
-
-        ClaimPlayerData.removePlayerData(uuid);
     }
 
     private NBTFile getPlayerNbtFile() {
