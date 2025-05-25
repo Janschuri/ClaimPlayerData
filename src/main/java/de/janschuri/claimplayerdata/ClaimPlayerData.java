@@ -18,14 +18,15 @@ public final class ClaimPlayerData extends JavaPlugin {
 
     private static ClaimPlayerData instance;
 
-    private static JSONStreamAware claimedPlayerData = new JSONObject();
-
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
 
-        saveResource("claimed_playerdata.json", false);
+        File claimedPlayerDataFile = new File(getDataFolder(), "claimed_playerdata.json");
+        if (!claimedPlayerDataFile.exists()) {
+            saveResource("claimed_playerdata.json", false);
+        }
 
         getCommand("claimplayerdata").setExecutor(new ClaimCommand());
         getServer().getPluginManager().registerEvents(new JoinListener(), this);
@@ -80,8 +81,12 @@ public final class ClaimPlayerData extends JavaPlugin {
         JSONParser parser = new JSONParser();
         JSONArray jsonArray;
 
+        File claimedPlayerDataFile = new File(getInstance().getDataFolder(), "claimed_playerdata.json");
+        if (!claimedPlayerDataFile.exists()) {
+            getInstance().saveResource("claimed_playerdata.json", false);
+        }
+
         try (FileReader reader = new FileReader(ClaimPlayerData.getInstance().getDataFolder() + "/claimed_playerdata.json")) {
-            // Parse the JSON file
             Object obj = parser.parse(reader);
             jsonArray = (JSONArray) obj;
         } catch (IOException | ParseException e) {
