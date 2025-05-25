@@ -1,31 +1,31 @@
 package de.janschuri.claimplayerdata;
 
 import de.tr7zw.nbtapi.*;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.json.simple.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+
+import static de.janschuri.claimplayerdata.ClaimPlayerData.getClaimedPlayerData;
+import static de.janschuri.claimplayerdata.ClaimPlayerData.getPlayerNbtFile;
 
 public class PlayerData {
 
     private final UUID uuid;
+    private JSONObject claimedData;
     private List<ItemStack> inventoryItems = new ArrayList<>();
     private List<ItemStack> enderchestItems = new ArrayList<>();
-    private int xp = 0;
+    private int xpTotal = 0;
 
     public PlayerData(
             UUID uuid
     ) {
         this.uuid = uuid;
 
-        NBTFile playerNbtFile = getPlayerNbtFile();
+        NBTFile playerNbtFile = getPlayerNbtFile(uuid);
+        claimedData = getClaimedPlayerData(uuid);
 
         if (playerNbtFile == null) {
             return;
@@ -41,10 +41,10 @@ public class PlayerData {
             });
         }
 
-        NBTCompoundList ender = playerNbtFile.getCompoundList("EnderItems");
+        NBTCompoundList enderItems = playerNbtFile.getCompoundList("EnderItems");
 
-        if (ender != null) {
-            ender.stream().forEach(nbtCompound -> {
+        if (enderItems != null) {
+            enderItems.stream().forEach(nbtCompound -> {
                 ItemStack item = NBT.itemStackFromNBT(nbtCompound);
 
                 enderchestItems.add(item);
@@ -52,12 +52,12 @@ public class PlayerData {
         }
 
 
-        xp = playerNbtFile.getInteger("XpTotal");
+        xpTotal = playerNbtFile.getInteger("XpTotal");
     }
 
 
     boolean isEmpty() {
-        return inventoryItems.isEmpty() && inventoryItems.isEmpty() && xp == 0;
+        return inventoryItems.isEmpty() && inventoryItems.isEmpty() && xpTotal == 0;
     }
 
     public List<ItemStack> getInventoryItems() {
@@ -68,80 +68,33 @@ public class PlayerData {
         return enderchestItems;
     }
 
-    public int getXp() {
-        return xp;
+    public int getXpTotal() {
+        return xpTotal;
     }
 
     public void clearInventory() {
-        inventoryItems.clear();
-
-        if (isEmpty()) {
-            delete();
-        } else {
-            removeKey("Inventory");
-        }
+        ClaimPlayerData.playerClaimedData(uuid, "Inventory");
     }
 
     public void clearEnderchest() {
-        enderchestItems.clear();
-
-        if (isEmpty()) {
-            delete();
-        } else {
-            removeKey("EnderItems");
-        }
+        ClaimPlayerData.playerClaimedData(uuid, "EnderItems");
     }
 
     public void clearXp() {
-        xp = 0;
-
-        if (isEmpty()) {
-            delete();
-        } else {
-            removeKey("XpTotal");
-        }
+        ClaimPlayerData.playerClaimedData(uuid, "XpTotal");
     }
 
-    public void removeKey(String key) {
-        try {
-            NBTFile playerNbtFile = getPlayerNbtFile();
-
-            if (playerNbtFile == null) {
-                Bukkit.getLogger().warning("Cannot remove key " + key + " because player data file is null.");
-                return;
-            }
-
-            playerNbtFile.removeKey(key);
-
-            playerNbtFile.save();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void delete() {
-        File playerDataDir = new File(ClaimPlayerData.getInstance().getDataFolder(), "playerdata");
-
-        File playerDataFile = new File(playerDataDir, uuid + ".dat");
-        File playerDataFileOld = new File(playerDataDir, uuid + ".dat_old");
-
-        playerDataFile.delete();
-        playerDataFileOld.delete();
-    }
-
-    private NBTFile getPlayerNbtFile() {
-        File playerDataDir = new File(ClaimPlayerData.getInstance().getDataFolder(), "playerdata");
-
-        File playerDataFile = new File(playerDataDir, uuid + ".dat");
-
-        if (!playerDataFile.exists()) {
-            return null;
+    public boolean hasClaimed(String type) {
+        if (claimedData == null) {
+            return false;
         }
 
-        try {
-            return new NBTFile(playerDataFile);
-        } catch (IOException e) {
-            return null;
+        if (claimedData.get("claimed_playerdata") == null) {
+            return false;
         }
+
+        List<String> claimedPlayerData = (List<String>) claimedData.get("claimed_playerdata");
+
+        return claimedPlayerData.contains(type);
     }
 }

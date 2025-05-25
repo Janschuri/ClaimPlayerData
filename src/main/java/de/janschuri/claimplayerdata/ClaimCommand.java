@@ -40,9 +40,9 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                     return true;
             }
 
-            PlayerData playerData = ClaimPlayerData.getPlayerData(player.getUniqueId());
+            PlayerData playerData = new PlayerData(player.getUniqueId());
 
-            if (playerData == null) {
+            if (playerData.isEmpty()) {
                 player.sendMessage(getMessage("no_unclaimed_data"));
                 return true;
             }
@@ -55,10 +55,15 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
+                    if (playerData.hasClaimed("Inventory")) {
+                        player.sendMessage(getMessage("inventory_already_claimed"));
+                        return true;
+                    }
+
                     List<ItemStack> inventoryItems = playerData.getInventoryItems();
 
                     if (inventoryItems.isEmpty()) {
-                        player.sendMessage(getMessage("no_unclaimed_inventory"));
+                        player.sendMessage(getMessage("inventory_no_unclaimed"));
                         return true;
                     }
 
@@ -72,7 +77,7 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                     dropItems(player, inventoryItems);
 
                     playerData.clearInventory();
-                    player.sendMessage(getMessage("claimed_inventory"));
+                    player.sendMessage(getMessage("inventory_claimed"));
                     break;
                 case "end":
                     if (!player.hasPermission("claimplayerdata.claim.end")) {
@@ -80,10 +85,15 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
+                    if (playerData.hasClaimed("EnderItems")) {
+                        player.sendMessage(getMessage("ender_items_already_claimed"));
+                        return true;
+                    }
+
                     List<ItemStack> enderchestItems = playerData.getEnderchestItems();
 
                     if (enderchestItems.isEmpty()) {
-                        player.sendMessage(getMessage("no_unclaimed_enderchest"));
+                        player.sendMessage(getMessage("ender_items_no_unclaimed"));
                         return true;
                     }
 
@@ -96,7 +106,7 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                     dropItems(player, enderchestItems);
 
                     playerData.clearEnderchest();
-                    player.sendMessage(getMessage("claimed_enderchest"));
+                    player.sendMessage(getMessage("ender_items_claimed"));
                     break;
                 case "xp":
                     if (!player.hasPermission("claimplayerdata.claim.xp")) {
@@ -104,15 +114,20 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
 
-                    if (playerData.getXp() == 0) {
-                        player.sendMessage(getMessage("no_unclaimed_xp"));
+                    if (playerData.hasClaimed("XpTotal")) {
+                        player.sendMessage(getMessage("xp_total_already_claimed"));
+                        return true;
+                    }
+
+                    if (playerData.getXpTotal() == 0) {
+                        player.sendMessage(getMessage("xp_total_no_unclaimed"));
                         return true;
                     }
 
                     if (!confirm) {
                         sendConfirmMessage(player, "xp", Component.text(
-                                getMessage("claim_xp_confirm")
-                                        .replace("%xp%", String.valueOf(playerData.getXp()))
+                                getMessage("xp_total_claim_confirm")
+                                        .replace("%xp%", String.valueOf(playerData.getXpTotal()))
                                 )
                         );
 
@@ -120,11 +135,11 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
                     }
 
 
-                    player.giveExp(playerData.getXp());
-                    Bukkit.getLogger().info(player.getName() + " got " + playerData.getXp() + " xp");
+                    player.giveExp(playerData.getXpTotal());
+                    Bukkit.getLogger().info(player.getName() + " got " + playerData.getXpTotal() + " xp");
 
                     playerData.clearXp();
-                    player.sendMessage(getMessage("claimed_xp"));
+                    player.sendMessage(getMessage("xp_total_claimed"));
                     break;
                 default:
                     player.sendMessage(getMessage("wrong_usage"));
@@ -142,10 +157,10 @@ public class ClaimCommand implements CommandExecutor, TabCompleter {
 
         switch (command) {
             case "inv":
-                message = getMessage("claim_inventory_confirm");
+                message = getMessage("inventory_claim_confirm");
                 break;
             case "end":
-                message = getMessage("claim_enderchest_confirm");
+                message = getMessage("ender_items_claim_confirm");
                 break;
         }
 

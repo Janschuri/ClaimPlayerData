@@ -12,20 +12,29 @@ public class JoinListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        PlayerData playerData = ClaimPlayerData.getPlayerData(player.getUniqueId());
+        PlayerData playerData = new PlayerData(player.getUniqueId());
 
         if (playerData != null && ClaimPlayerData.getInstance().getConfig().getBoolean("notify_on_join")) {
-            if (playerData.getInventoryItems().size() > 0 && player.hasPermission("claimplayerdata.claim.inv")) {
+            if (playerData.getInventoryItems().size() > 0
+                    && player.hasPermission("claimplayerdata.claim.inv")
+                    && !playerData.hasClaimed("Inventory")
+            ) {
                 player.sendMessage(ClaimPlayerData.getMessage("unclaimed_data"));
                 return;
             }
 
-            if (playerData.getXp() > 0 && player.hasPermission("claimplayerdata.claim.xp")) {
+            if (playerData.getXpTotal() > 0
+                    && player.hasPermission("claimplayerdata.claim.xp")
+                    && !playerData.hasClaimed("XpTotal")
+            ) {
                 player.sendMessage(ClaimPlayerData.getMessage("unclaimed_data"));
                 return;
             }
 
-            if (playerData.getEnderchestItems().size() > 0 && player.hasPermission("claimplayerdata.claim.ender")) {
+            if (playerData.getEnderchestItems().size() > 0
+                    && player.hasPermission("claimplayerdata.claim.ender")
+                    && !playerData.hasClaimed("EnderItems")
+            ) {
                 player.sendMessage(ClaimPlayerData.getMessage("unclaimed_data"));
                 return;
             }
