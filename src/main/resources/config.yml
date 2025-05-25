@@ -11,7 +11,7 @@ messages:
   xp_total_claimed: "You have claimed your experience."
   ender_items_no_unclaimed: "You have no unclaimed enderchest."
   ender_items_already_claimed: "You have already claimed your enderchest."
-  ender_items_claim_confirm: "You need to have enough space in your enderchest to claim your old enderchest."
+  ender_items_claim_confirm: "You need to have enough space in your inventory to claim your old enderchest."
   ender_items_claimed: "You have claimed your enderchest."
   items_amount: "(%amount% items)"
   items_list: "Items:"
